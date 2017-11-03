@@ -6,18 +6,70 @@
 //  Copyright © 2017 Varun Santhanam. All rights reserved.
 //
 
+#import <os/log.h>
+
 #import "AppDelegate.h"
 
-@interface AppDelegate ()
+@import ExampleKit;
+
+@interface AppDelegate ()<EKSessionDelegate>
+
+@property (nonatomic, strong, readonly) EKSession *session;
 
 @end
 
 @implementation AppDelegate
 
+static os_log_t example_log;
+
+@synthesize session = _session;
+
+#pragma mark - Overridden Class Methods
+
++ (void)initialize {
+    
+    example_log = os_log_create("com.varunsanthanam.ExampleApp", "ExampleLog");
+    
+}
+
+#pragma mark - Property Access Methods
+
+- (EKSession *)session {
+    
+    if (!_session) {
+        
+        _session = [[EKSession alloc] initWithDelegate:self];
+        
+    }
+    
+    return _session;
+    
+}
+
+#pragma mark - EKSessionDelegate
+
+- (void)session:(EKSession *)session didBeginProcessingObject:(EKObject *)object {
+    
+    os_log(example_log, "Began Processing Object");
+    
+}
+
+- (void)session:(EKSession *)session didFinishProcessingObject:(EKObject *)object withError:(NSError *)error {
+    
+    os_log(example_log, "Finished Processing Object");
+    
+}
+
+#pragma mark - UIApplicationDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    EKObject *object = [[EKObject alloc] initWithObjectName:@"ExampleApp"];
+    [self.session processObject:object];
+    
     return YES;
+    
 }
 
 
